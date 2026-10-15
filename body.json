@@ -1,0 +1,1 @@
+{"phone_number":"254718588330","amount":10,"account_reference":"Deposit","transaction_desc":"Deposit Funds","callback_url":"http://localhost:3000/api/payments/cloudpay/callback"}
