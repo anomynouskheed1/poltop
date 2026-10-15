@@ -80,7 +80,7 @@ export default function AuthPage() {
 
                 if (error) throw error;
 
-                router.push("/dashboard ");
+                router.push("/trade");
                 router.refresh();
                 return;
             }

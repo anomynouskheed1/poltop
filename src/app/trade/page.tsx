@@ -5,8 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
 import confetti from "canvas-confetti";
+import TradeAuthModal from "@/components/TradeAuthModal";
 import {
   BarChart3,
+  CandlestickChart,
   ChevronDown,
   ChevronUp,
   FlaskConical,
@@ -19,7 +21,6 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
-
 import MarketChart from "@/components/MarketChart";
 import TradeCountdown from "@/components/TradeCountdown";
 import { AppShell, useAccount } from "@/components/AppShell";
@@ -263,6 +264,13 @@ function TradeContent() {
   const [refreshing, setRefreshing] = useState(false);
   const [howToOpen, setHowToOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [showAuthOverlay, setShowAuthOverlay] = useState(false);
+  const [authMode, setAuthMode] = useState<"LOGIN" | "SIGNUP">("LOGIN");
+
+  const closeAuthOverlay = useCallback(() => {
+    setShowAuthOverlay(false);
+  }, []);
+
 
   const { ticks, candles, currentPrice } = useMarketTicks(selectedSymbol);
 
@@ -345,7 +353,7 @@ function TradeContent() {
 
   async function handlePlaceTrade(direction: string) {
     if (!user) {
-      window.location.href = "/auth";
+      setShowAuthOverlay(true);
       return;
     }
 
@@ -480,6 +488,15 @@ function TradeContent() {
         onClose={() => setHowToOpen(false)}
         duration={duration}
       />
+      <TradeAuthModal
+        open={showAuthOverlay && !user}
+        onClose={closeAuthOverlay}
+        initialMode={authMode}
+        onAuthenticated={() => {
+          void reload();
+          void loadTrades();
+        }}
+      />
 
       <div className="min-w-0">
         {/* Trading shortcuts */}
@@ -491,8 +508,8 @@ function TradeContent() {
                   type="button"
                   onClick={() => setAccountType("REAL")}
                   className={`flex items-center gap-1 rounded-md px-2.5 py-2 text-xs font-bold sm:px-3 ${accountType === "REAL"
-                      ? "bg-emerald-500 text-[#04110c]"
-                      : "text-neutral-400"
+                    ? "bg-emerald-500 text-[#04110c]"
+                    : "text-neutral-400"
                     }`}
                 >
                   <Radio size={13} />
@@ -502,8 +519,8 @@ function TradeContent() {
                   type="button"
                   onClick={() => setAccountType("DEMO")}
                   className={`flex items-center gap-1 rounded-md px-2.5 py-2 text-xs font-bold sm:px-3 ${accountType === "DEMO"
-                      ? "bg-emerald-500 text-[#04110c]"
-                      : "text-neutral-400"
+                    ? "bg-emerald-500 text-[#04110c]"
+                    : "text-neutral-400"
                     }`}
                 >
                   <FlaskConical size={13} />
@@ -529,8 +546,8 @@ function TradeContent() {
                 void loadTrades();
               }}
               className={`flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-white/[0.06] px-2.5 text-xs font-semibold sm:px-3 ${historyOpen
-                  ? "bg-emerald-500/15 text-emerald-400"
-                  : "bg-[#0e1512] text-neutral-300"
+                ? "bg-emerald-500/15 text-emerald-400"
+                : "bg-[#0e1512] text-neutral-300"
                 }`}
             >
               <History size={15} />
@@ -583,8 +600,8 @@ function TradeContent() {
             <div className="shrink-0 text-right">
               <p
                 className={`font-mono text-lg font-bold sm:text-2xl ${change !== null && change < 0
-                    ? "text-rose-400"
-                    : "text-emerald-400"
+                  ? "text-rose-400"
+                  : "text-emerald-400"
                   }`}
               >
                 {currentPrice ? currentPrice.toFixed(5) : "—"}
@@ -620,8 +637,8 @@ function TradeContent() {
                   type="button"
                   onClick={() => setTradeType(type)}
                   className={`min-w-0 rounded-lg px-1.5 py-2.5 text-[11px] font-semibold transition-colors sm:px-3 sm:text-sm ${tradeType === type
-                      ? "border border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
-                      : "border border-white/[0.06] bg-[#0e1512] text-neutral-300 hover:text-white"
+                    ? "border border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+                    : "border border-white/[0.06] bg-[#0e1512] text-neutral-300 hover:text-white"
                     }`}
                 >
                   {CONTRACTS[type].label}
@@ -753,8 +770,8 @@ function TradeContent() {
                   type="button"
                   onClick={() => setStake(preset)}
                   className={`h-10 min-w-0 rounded-lg px-0.5 font-mono text-[11px] font-bold transition-colors sm:h-11 sm:text-sm ${stake === preset
-                      ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/50"
-                      : "bg-[#0a110f] text-neutral-300 ring-1 ring-white/[0.06] hover:ring-white/20"
+                    ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/50"
+                    : "bg-[#0a110f] text-neutral-300 ring-1 ring-white/[0.06] hover:ring-white/20"
                     }`}
                 >
                   {preset >= 1000 ? `${preset / 1000}k` : preset}
@@ -773,8 +790,8 @@ function TradeContent() {
       {/* Trade history: sidebar on desktop, expandable below on mobile */}
       <aside
         className={`relative min-h-[300px] border-white/[0.06] bg-[#0c1411] lg:block lg:border-l ${historyOpen
-            ? "block border-t"
-            : "hidden"
+          ? "block border-t"
+          : "hidden"
           }`}
       >
         <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3 sm:px-5">
@@ -816,10 +833,10 @@ function TradeContent() {
                 <div className="flex min-w-0 items-center gap-2.5">
                   <span
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${won
-                        ? "bg-emerald-500/15 text-emerald-400"
-                        : lost
-                          ? "bg-rose-500/15 text-rose-400"
-                          : "bg-amber-500/15 text-amber-400"
+                      ? "bg-emerald-500/15 text-emerald-400"
+                      : lost
+                        ? "bg-rose-500/15 text-rose-400"
+                        : "bg-amber-500/15 text-amber-400"
                       }`}
                   >
                     {won ? "W" : lost ? "L" : "•"}

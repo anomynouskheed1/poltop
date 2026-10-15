@@ -1,4 +1,4 @@
-// src/components/AppShell.tsx
+
 "use client";
 
 import {
@@ -14,6 +14,7 @@ import {
     Bell,
     BellRing,
     CandlestickChart,
+    ChevronRight,
     Download,
     History,
     LayoutDashboard,
@@ -54,7 +55,6 @@ interface AccountContextValue {
     reload: () => Promise<void>;
 }
 
-// Starting demo balance for new profiles (set NEXT_PUBLIC_DEMO_START_BALANCE to change)
 const DEMO_START_BALANCE = Number(
     process.env.NEXT_PUBLIC_DEMO_START_BALANCE ?? 10000
 );
@@ -67,19 +67,17 @@ export function useAccount() {
     return ctx;
 }
 
-/* ------------------------------------------------------------------ */
-/* Navigation — adjust routes to match your app                        */
-/* ------------------------------------------------------------------ */
-
 const NAV = [
     {
         title: "Overview",
-        items: [{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard }],
+        items: [
+            { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+        ],
     },
     {
         title: "Trading",
         items: [
-            { label: "Candle Trade", href: "/trade", icon: CandlestickChart, hot: true },
+            { label: "Candle Trade", href: "/trade", icon: CandlestickChart },
             { label: "Pro Trader", href: "/pro-trader", icon: LineChart },
             { label: "Trade History", href: "/history", icon: History },
             { label: "Price Alerts", href: "/alerts", icon: BellRing },
@@ -94,7 +92,7 @@ const NAV = [
         ],
     },
     {
-        title: "Account",
+        title: "More",
         items: [
             { label: "Notifications", href: "/notifications", icon: Bell },
             { label: "Support", href: "/support", icon: HelpCircle },
@@ -107,39 +105,44 @@ const ACCOUNT_LINKS = [
     { label: "Settings", href: "/settings", icon: Settings },
 ];
 
-const MOBILE_NAV = [
-    { label: "Home", href: "/dashboard", icon: LayoutDashboard },
-    { label: "🔥 Trade", href: "/trade", icon: CandlestickChart },
-    { label: "Deposit", href: "/deposit", icon: Download },
-    { label: "Wallet", href: "/wallet", icon: Wallet },
-    { label: "Me", href: "/profile", icon: User },
-];
-
-/* ------------------------------------------------------------------ */
-
 function Logo() {
     return (
-        <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#04110c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <Link href="/trade" className="flex shrink-0 items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#04110c"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                >
                     <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
                     <polyline points="16 7 22 7 22 13" />
                 </svg>
             </span>
-            <span className="text-xl font-semibold tracking-tight">
-                FX <span className="text-emerald-500">Trades</span>
+            <span className="text-lg font-bold tracking-tight sm:text-xl">
+                Pol<span className="text-emerald-400">top</span>
             </span>
         </Link>
     );
 }
 
-export function Avatar({ name, size = 40 }: { name: string; size?: number }) {
+export function Avatar({
+    name,
+    size = 40,
+}: {
+    name: string;
+    size?: number;
+}) {
     return (
         <span
             style={{ width: size, height: size, fontSize: size * 0.4 }}
-            className="flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 font-semibold text-[#04110c] shadow-[0_0_18px_rgba(16,185,129,0.3)]"
+            className="flex shrink-0 items-center justify-center rounded-full border border-emerald-400/20 bg-gradient-to-br from-emerald-400 to-emerald-600 font-bold text-[#04110c]"
         >
-            {name.charAt(0).toUpperCase()}
+            {(name || "T").charAt(0).toUpperCase()}
         </span>
     );
 }
@@ -149,105 +152,130 @@ function SidebarContent({
     roleLabel,
     onNavigate,
     onSignOut,
+    authenticated,
 }: {
     displayName: string;
     roleLabel: string;
-    onNavigate?: () => void;
+    onNavigate: () => void;
     onSignOut: () => void;
+    authenticated: boolean;
 }) {
     const pathname = usePathname();
 
     const linkClass = (active: boolean) =>
-        `flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-medium transition-colors ${active
-            ? "bg-white/[0.06] text-white"
-            : "text-neutral-400 hover:bg-white/[0.03] hover:text-white"
+        `flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition ${active
+            ? "bg-emerald-500/10 text-emerald-300"
+            : "text-neutral-400 hover:bg-white/[0.05] hover:text-white"
         }`;
 
     return (
-        <div className="flex h-full flex-col">
-            <div className="flex h-16 shrink-0 items-center border-b border-white/[0.06] px-5">
+        <div className="flex h-full min-h-0 flex-col">
+            <div className="flex h-[68px] shrink-0 items-center justify-between border-b border-white/[0.07] px-5">
                 <Logo />
+                <button
+                    type="button"
+                    aria-label="Close navigation"
+                    onClick={onNavigate}
+                    className="rounded-lg p-2 text-neutral-400 hover:bg-white/[0.06] hover:text-white"
+                >
+                    <X size={19} />
+                </button>
             </div>
 
-            <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-4">
-                <Avatar name={displayName} size={44} />
+            <div className="flex shrink-0 items-center gap-3 border-b border-white/[0.07] px-5 py-4">
+                <Avatar name={displayName} size={42} />
                 <div className="min-w-0">
-                    <p className="truncate font-semibold">{displayName}</p>
-                    <span className="mt-1 inline-block rounded-md bg-white/[0.07] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-                        {roleLabel}
-                    </span>
+                    <p className="truncate text-sm font-semibold text-white">
+                        {displayName}
+                    </p>
+                    <p className="mt-1 text-xs text-neutral-500">
+                        {authenticated ? roleLabel : "Guest access"}
+                    </p>
                 </div>
             </div>
 
             <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
                 {NAV.map((group) => (
                     <div key={group.title} className="mb-5">
-                        <p className="mb-2 px-4 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-600">
+                        <p className="mb-2 px-3.5 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-600">
                             {group.title}
                         </p>
                         <div className="space-y-1">
                             {group.items.map((item) => {
                                 const Icon = item.icon;
+                                const active = pathname === item.href;
+
                                 return (
                                     <Link
                                         key={item.href}
                                         href={item.href}
                                         onClick={onNavigate}
-                                        className={linkClass(pathname === item.href)}
+                                        className={linkClass(active)}
                                     >
-                                        <Icon size={20} />
-                                        <span>
-                                            {item.label}
-                                            {"hot" in item && item.hot && (
-                                                <span className="ml-1.5">🔥 HOT</span>
-                                            )}
-                                        </span>
+                                        <Icon size={18} />
+                                        <span className="flex-1">{item.label}</span>
+                                        {active && (
+                                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                                        )}
                                     </Link>
                                 );
                             })}
                         </div>
                     </div>
                 ))}
+
+                <div className="mb-4">
+                    <p className="mb-2 px-3.5 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-600">
+                        Account
+                    </p>
+                    <div className="space-y-1">
+                        {ACCOUNT_LINKS.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={onNavigate}
+                                    className={linkClass(pathname === item.href)}
+                                >
+                                    <Icon size={18} />
+                                    {item.label}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </div>
             </nav>
 
-            {/* Pinned footer: Profile, Settings and Sign out stay visible while the menu above scrolls */}
-            <div className="shrink-0 space-y-1 border-t border-white/[0.06] bg-[#0a110f] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
-                {ACCOUNT_LINKS.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={onNavigate}
-                            className={linkClass(pathname === item.href)}
-                        >
-                            <Icon size={20} />
-                            {item.label}
-                        </Link>
-                    );
-                })}
-
-                <button
-                    type="button"
-                    onClick={onSignOut}
-                    className={`${linkClass(false)} w-full`}
-                >
-                    <LogOut size={20} />
-                    Sign out
-                </button>
+            <div className="shrink-0 border-t border-white/[0.07] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                {authenticated ? (
+                    <button
+                        type="button"
+                        onClick={onSignOut}
+                        className={`${linkClass(false)} text-rose-300 hover:bg-rose-500/10 hover:text-rose-200`}
+                    >
+                        <LogOut size={18} />
+                        Sign out
+                    </button>
+                ) : (
+                    <Link
+                        href="/auth"
+                        onClick={onNavigate}
+                        className="flex w-full items-center justify-center rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-[#04110c] transition hover:bg-emerald-400"
+                    >
+                        Sign in to your account
+                    </Link>
+                )}
             </div>
         </div>
     );
 }
-
-/* ------------------------------------------------------------------ */
 
 export function AppShell({
     children,
     flush = false,
 }: {
     children: React.ReactNode;
-    /** Remove content padding (used by the full-bleed trade terminal) */
     flush?: boolean;
 }) {
     const router = useRouter();
@@ -259,11 +287,13 @@ export function AppShell({
     const [accountType, setAccountTypeState] = useState<AccountType>("REAL");
     const [loading, setLoading] = useState(true);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [profileOpen, setProfileOpen] = useState(false);
 
-    /* Remember Live / Demo across pages */
     useEffect(() => {
         const saved = localStorage.getItem("accountType");
-        if (saved === "DEMO" || saved === "REAL") setAccountTypeState(saved);
+        if (saved === "DEMO" || saved === "REAL") {
+            setAccountTypeState(saved);
+        }
     }, []);
 
     const setAccountType = (type: AccountType) => {
@@ -274,11 +304,21 @@ export function AppShell({
     const load = useCallback(async () => {
         const {
             data: { user: authUser },
+            error,
         } = await supabase.auth.getUser();
+
+        if (error) {
+            console.error("Authentication check failed:", error);
+        }
 
         if (!authUser) {
             setUser(null);
-            router.replace("/auth");
+            setProfile(null);
+            setUnreadCount(0);
+
+            if (pathname !== "/trade") {
+                router.replace("/auth");
+            }
             return;
         }
 
@@ -293,7 +333,11 @@ export function AppShell({
         });
 
         const [profileRes, notifRes] = await Promise.all([
-            supabase.from("profiles").select("*").eq("id", authUser.id).maybeSingle(),
+            supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", authUser.id)
+                .maybeSingle(),
             supabase
                 .from("notifications")
                 .select("id", { count: "exact", head: true })
@@ -303,7 +347,6 @@ export function AppShell({
 
         let profileRow = profileRes.data ?? null;
 
-        // First sign-in after sign-up (or a missing row): create the profile now
         if (!profileRow) {
             const { data: created } = await supabase
                 .from("profiles")
@@ -322,43 +365,87 @@ export function AppShell({
                 )
                 .select("*")
                 .maybeSingle();
+
             profileRow = created ?? null;
         }
 
         setProfile(profileRow);
         setUnreadCount(notifRes.count ?? 0);
-    }, [supabase, router]);
+    }, [router, pathname]);
 
     useEffect(() => {
+        let active = true;
+
+        setLoading(true);
         load()
             .catch((error) => console.error("Account loading error:", error))
-            .finally(() => setLoading(false));
+            .finally(() => {
+                if (active) setLoading(false);
+            });
+
+        return () => {
+            active = false;
+        };
     }, [load]);
 
     useEffect(() => {
-        document.body.style.overflow = drawerOpen ? "hidden" : "";
+        document.body.style.overflow =
+            drawerOpen || profileOpen ? "hidden" : "";
+
         return () => {
             document.body.style.overflow = "";
         };
-    }, [drawerOpen]);
+    }, [drawerOpen, profileOpen]);
+
+    useEffect(() => {
+        setDrawerOpen(false);
+        setProfileOpen(false);
+    }, [pathname]);
+
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setDrawerOpen(false);
+                setProfileOpen(false);
+            }
+        };
+
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, []);
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
-        router.push("/auth");
+        setUser(null);
+        setProfile(null);
+        setDrawerOpen(false);
+        setProfileOpen(false);
+        router.replace("/auth");
         router.refresh();
     };
 
     const demoBalance = Number(
-        profile?.demo_balance ?? profile?.demoBalance ?? profile?.balance_demo ?? 0
+        profile?.demo_balance ??
+        profile?.demoBalance ??
+        profile?.balance_demo ??
+        0
     );
+
     const realBalance = Number(
-        profile?.real_balance ?? profile?.realBalance ?? profile?.balance_real ?? 0
+        profile?.real_balance ??
+        profile?.realBalance ??
+        profile?.balance_real ??
+        0
     );
+
     const currency = String(profile?.currency ?? "KES");
     const balance = accountType === "DEMO" ? demoBalance : realBalance;
 
     const displayName =
-        profile?.full_name || user?.metaName || user?.email.split("@")[0] || "Trader";
+        profile?.full_name ||
+        user?.metaName ||
+        user?.email.split("@")[0] ||
+        "Trader";
 
     const role = profile?.role ? String(profile.role) : "Trader";
 
@@ -378,12 +465,14 @@ export function AppShell({
         realBalance,
         accountType,
         setAccountType,
-        referralCode: profile?.referral_code ? String(profile.referral_code) : "",
+        referralCode: profile?.referral_code
+            ? String(profile.referral_code)
+            : "",
         loading,
         reload: load,
     };
 
-    if (loading || !user) {
+    if (loading || (!user && pathname !== "/trade")) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[#08100d]">
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-emerald-500" />
@@ -394,36 +483,20 @@ export function AppShell({
     return (
         <AccountContext.Provider value={ctx}>
             <div className="min-h-screen bg-[#08100d] text-white">
-                {/* Desktop sidebar */}
-                <aside className="fixed inset-y-0 left-0 z-40 hidden w-[280px] border-r border-white/[0.06] bg-[#0a110f] lg:block">
-                    <SidebarContent
-                        displayName={displayName}
-                        roleLabel={role}
-                        onSignOut={handleSignOut}
-                    />
-                </aside>
-
-                {/* Mobile drawer */}
+                {/* Slide-out navigation works on desktop and mobile */}
                 {drawerOpen && (
-                    <div className="fixed inset-x-0 top-0 z-50 h-[100dvh] lg:hidden">
+                    <div className="fixed inset-0 z-[60]">
                         <button
                             type="button"
-                            aria-label="Close menu"
+                            aria-label="Close navigation backdrop"
                             onClick={() => setDrawerOpen(false)}
-                            className="absolute inset-0 bg-black/70"
+                            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
                         />
-                        <aside className="absolute inset-y-0 left-0 w-[290px] max-w-[85%] border-r border-white/[0.06] bg-[#0a110f]">
-                            <button
-                                type="button"
-                                aria-label="Close menu"
-                                onClick={() => setDrawerOpen(false)}
-                                className="absolute right-3 top-3 z-10 rounded-lg p-2 text-neutral-400 hover:text-white"
-                            >
-                                <X size={20} />
-                            </button>
+                        <aside className="absolute inset-y-0 left-0 flex w-[310px] max-w-[88vw] flex-col border-r border-white/[0.08] bg-[#0a110f] shadow-2xl">
                             <SidebarContent
                                 displayName={displayName}
                                 roleLabel={role}
+                                authenticated={Boolean(user)}
                                 onNavigate={() => setDrawerOpen(false)}
                                 onSignOut={handleSignOut}
                             />
@@ -431,84 +504,190 @@ export function AppShell({
                     </div>
                 )}
 
-                <div className="lg:pl-[280px]">
-                    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/[0.06] bg-[#08100d]/90 px-4 backdrop-blur-xl sm:px-6 lg:px-12">
-                        <div className="flex items-center gap-3 lg:hidden">
-                            <button
-                                type="button"
-                                aria-label="Open menu"
-                                onClick={() => setDrawerOpen(true)}
-                                className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/[0.06] bg-[#0e1512]"
-                            >
-                                <Menu size={20} />
-                            </button>
-                            <Logo />
-                        </div>
+                {/* Profile popup backdrop */}
+                {profileOpen && (
+                    <button
+                        type="button"
+                        aria-label="Close profile menu"
+                        onClick={() => setProfileOpen(false)}
+                        className="fixed inset-0 z-[45] cursor-default bg-black/30"
+                    />
+                )}
 
-                        <div className="ml-auto flex items-center gap-3 sm:gap-4">
-                            <Link
-                                href="/wallet"
-                                className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-[#0e1512] px-4 py-2.5 font-mono text-[15px] font-semibold"
-                            >
-                                <Wallet size={14} className="text-neutral-400" />
-                                {money(balance)}
-                            </Link>
-
-                            <button
-                                type="button"
-                                aria-label="Notifications"
-                                className="relative p-2 text-neutral-300 hover:text-white"
-                            >
-                                <Bell size={20} />
-                                {unreadCount > 0 && (
-                                    <span className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[11px] font-bold text-[#04110c]">
-                                        {unreadCount}
-                                    </span>
-                                )}
-                            </button>
-
-                            <Link href="/profile" aria-label="Profile">
-                                <Avatar name={displayName} size={44} />
-                            </Link>
-                        </div>
-                    </header>
-
-                    <main
-                        className={
-                            flush
-                                ? "pb-[72px] lg:pb-0"
-                                : "px-4 pb-28 pt-8 sm:px-6 lg:px-12 lg:pb-12 lg:pt-10"
-                        }
-                    >
-                        {children}
-                    </main>
-                </div>
-
-                {/* Mobile bottom nav */}
-                <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.06] bg-[#08100d]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
-                    <div className="mx-auto grid h-[72px] max-w-xl grid-cols-5">
-                        {MOBILE_NAV.map((item) => {
-                            const Icon = item.icon;
-                            const active = pathname === item.href;
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={`flex flex-col items-center justify-center gap-1 text-xs font-medium ${active ? "text-emerald-400" : "text-neutral-500"
-                                        }`}
-                                >
-                                    <span
-                                        className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? "bg-emerald-500/15" : ""
-                                            }`}
-                                    >
-                                        <Icon size={20} />
-                                    </span>
-                                    {item.label}
-                                </Link>
-                            );
-                        })}
+                <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-white/[0.07] bg-[#08100d]/95 px-3 backdrop-blur-xl sm:px-5 lg:px-8">
+                    <div className="flex min-w-0 items-center gap-2.5 sm:gap-4">
+                        <button
+                            type="button"
+                            aria-label="Open navigation menu"
+                            aria-expanded={drawerOpen}
+                            onClick={() => {
+                                setProfileOpen(false);
+                                setDrawerOpen(true);
+                            }}
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-[#0e1512] text-neutral-200 transition hover:border-emerald-500/30 hover:text-emerald-300"
+                        >
+                            <Menu size={20} />
+                        </button>
+                        <Logo />
                     </div>
-                </nav>
+
+                    <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                        {user && (
+                            <>
+                                <Link
+                                    href="/wallet"
+                                    title="Open wallet"
+                                    className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-[#0e1512] px-2.5 py-2 sm:px-3.5"
+                                >
+                                    <Wallet
+                                        size={15}
+                                        className="text-emerald-400"
+                                    />
+                                    <span className="font-mono text-xs font-bold sm:text-sm">
+                                        {money(balance)}
+                                    </span>
+                                </Link>
+
+                                <Link
+                                    href="/notifications"
+                                    aria-label="Notifications"
+                                    className="relative flex h-10 w-10 items-center justify-center rounded-xl text-neutral-300 transition hover:bg-white/[0.05] hover:text-white"
+                                >
+                                    <Bell size={19} />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-[#04110c]">
+                                            {unreadCount > 99 ? "99+" : unreadCount}
+                                        </span>
+                                    )}
+                                </Link>
+                            </>
+                        )}
+
+                        <button
+                            type="button"
+                            aria-label="Open profile menu"
+                            aria-expanded={profileOpen}
+                            onClick={() => {
+                                setDrawerOpen(false);
+                                setProfileOpen((open) => !open);
+                            }}
+                            className={`flex items-center gap-2 rounded-xl border p-1.5 pr-2 transition ${profileOpen
+                                    ? "border-emerald-500/30 bg-emerald-500/10"
+                                    : "border-transparent hover:border-white/10 hover:bg-white/[0.04]"
+                                }`}
+                        >
+                            <Avatar name={displayName} size={34} />
+                            <span className="hidden max-w-28 truncate text-sm font-semibold sm:block">
+                                {user ? displayName : "Guest"}
+                            </span>
+                        </button>
+                    </div>
+                </header>
+
+                {/* Profile dropdown stays on the current page */}
+                {profileOpen && (
+                    <div className="fixed right-3 top-[72px] z-[50] w-[min(320px,calc(100vw-24px))] overflow-hidden rounded-2xl border border-white/10 bg-[#0d1511] shadow-2xl sm:right-5 lg:right-8">
+                        <div className="flex items-center gap-3 border-b border-white/[0.07] p-4">
+                            <Avatar name={displayName} size={46} />
+                            <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-bold">
+                                    {displayName}
+                                </p>
+                                <p className="truncate text-xs text-neutral-500">
+                                    {user?.email ?? "Browsing as a guest"}
+                                </p>
+                                <span className="mt-1 inline-flex rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                                    {user ? role : "Guest"}
+                                </span>
+                            </div>
+                        </div>
+
+                        {user && (
+                            <div className="border-b border-white/[0.07] p-3">
+                                <p className="px-2 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-600">
+                                    Active balance
+                                </p>
+                                <div className="flex items-center justify-between rounded-xl bg-white/[0.03] p-3">
+                                    <div className="flex items-center gap-2 text-sm text-neutral-400">
+                                        <Wallet size={17} />
+                                        {accountType === "DEMO" ? "Demo" : "Live"}
+                                    </div>
+                                    <span className="font-mono text-sm font-bold text-emerald-300">
+                                        {money(balance)}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-1 p-2">
+                            {user ? (
+                                <>
+                                    {ACCOUNT_LINKS.map((item) => {
+                                        const Icon = item.icon;
+                                        return (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                onClick={() => setProfileOpen(false)}
+                                                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-300 transition hover:bg-white/[0.05] hover:text-white"
+                                            >
+                                                <Icon size={18} />
+                                                <span className="flex-1">{item.label}</span>
+                                                <ChevronRight size={16} className="text-neutral-600" />
+                                            </Link>
+                                        );
+                                    })}
+
+                                    <Link
+                                        href="/wallet"
+                                        onClick={() => setProfileOpen(false)}
+                                        className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-300 transition hover:bg-white/[0.05] hover:text-white"
+                                    >
+                                        <Wallet size={18} />
+                                        <span className="flex-1">Wallet</span>
+                                        <ChevronRight size={16} className="text-neutral-600" />
+                                    </Link>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleSignOut}
+                                        className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm text-rose-300 transition hover:bg-rose-500/10"
+                                    >
+                                        <LogOut size={18} />
+                                        Sign out
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link
+                                        href="/auth"
+                                        onClick={() => setProfileOpen(false)}
+                                        className="flex items-center justify-center rounded-xl bg-emerald-500 px-4 py-3 text-sm font-bold text-[#04110c] transition hover:bg-emerald-400"
+                                    >
+                                        Sign in
+                                    </Link>
+                                    <Link
+                                        href="/auth?mode=signup"
+                                        onClick={() => setProfileOpen(false)}
+                                        className="flex items-center justify-center rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/[0.05]"
+                                    >
+                                        Create account
+                                    </Link>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                <main
+                    className={
+                        flush
+                            ? "min-w-0 pb-0"
+                            : "min-w-0 px-3 pb-8 pt-5 sm:px-5 sm:pt-7 lg:px-8 lg:pt-8"
+                    }
+                >
+                    {children}
+                </main>
             </div>
         </AccountContext.Provider>
     );
