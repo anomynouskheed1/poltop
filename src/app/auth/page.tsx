@@ -80,7 +80,7 @@ export default function AuthPage() {
 
                 if (error) throw error;
 
-                router.push("/trade");
+                router.replace("/trade");
                 router.refresh();
                 return;
             }
@@ -126,11 +126,11 @@ export default function AuthPage() {
              * immediately. Otherwise show the confirmation message.
              */
             if (data.session) {
-                router.push("/dashboard");
+                router.replace("/trade");
                 router.refresh();
             } else {
                 setSuccessMessage(
-                    "Account created. Check your email to confirm your account."
+                    "Account created. Check your email to confirm your account before signing in."
                 );
             }
         } catch (err: any) {
@@ -148,7 +148,9 @@ export default function AuthPage() {
 
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
-            options: { redirectTo: `${window.location.origin}/` },
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback?next=/trade`,
+            },
         });
 
         if (error) setErrorMessage(error.message);
